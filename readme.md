@@ -17,7 +17,7 @@ Each day = one focused build sprint.
 
 ai-automation/
 ├── day-1/ → LLM API integration + data extraction pipeline
-├── day-2/ → coming soon
+├── day-2/ → PDF to structured JSON extractor
 └── README.md
 
 ---
@@ -28,6 +28,12 @@ ai-automation/
 - Connected Groq + Gemini APIs
 - Built extract_structured() — extracts any schema from any text as JSON
 - Files: groq_test.py, gemini_test.py, structured_output.py
+
+### Day 2 — PDF → Structured Data Extractor
+- Built pdf_extractor.py — extracts structured JSON from any text-based PDF
+- Tested on resume, academic tutorial sheet, lecture notes
+- Added error handling, JSON output saved to file
+- Files: pdf_extractor.py, day2_explore.py, output_resume.json
 
 ---
 
