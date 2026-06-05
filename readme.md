@@ -45,7 +45,15 @@ Each day = one focused build sprint.
 - n8n running locally via Docker
 - Built webhook → Edit Fields → Google Sheets pipeline
 - ngrok public URL for live demos
-- Files: workflows/lead-capture-google-sheets.json
+- Files: workflows/lead-capture-google-sheets.json\
+
+### Day 4 — AI Lead Qualifier (Gmail Trigger + Groq Scoring)
+- Gmail Trigger → reads emails sent to binarygenius.leads@gmail.com
+- Groq classifies leads → hot / warm / cold (3-tier scoring)
+- Hot leads → Hot Leads sheet + alert to suryansh2020 + personalized auto-reply to sender
+- Warm leads → Warm Leads sheet
+- Cold leads → Cold Leads sheet
+- Files: workflows/lead-qualifier-gmail-trigger.json
 
 ---
 

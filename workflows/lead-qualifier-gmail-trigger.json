@@ -1,0 +1,823 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "cc6a7ef3-ba1c-470d-bd87-630b96c53447",
+              "name": "name",
+              "value": "={{ $json.from.value[0].name }}",
+              "type": "string"
+            },
+            {
+              "id": "40f98844-d1df-42db-9749-a913c5259cc1",
+              "name": "email",
+              "value": "={{ $json.from.value[0].address }}",
+              "type": "string"
+            },
+            {
+              "id": "92e9f10f-e24e-452e-ab47-738cb0e8e907",
+              "name": "interest",
+              "value": "={{ $json.text.replace(/\\n/g, ' ').replace(/\\r/g, '').trim() }}",
+              "type": "string"
+            },
+            {
+              "id": "8dab49a0-d237-4dce-a8d0-a98cbf33476a",
+              "name": "timestamp",
+              "value": "={{ new Date().toISOString() }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        208,
+        0
+      ],
+      "id": "59eec2fa-e95e-47b8-b773-f4398c1c80e7",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.groq.com/openai/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"llama-3.3-70b-versatile\",\n  \"temperature\": 0,\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"You are a lead qualification assistant. Analyze the lead and respond with ONLY a JSON object in this exact format: {\\\"score\\\": \\\"hot\\\" or \\\"warm\\\" or \\\"cold\\\", \\\"reason\\\": \\\"one sentence\\\"}\\n\\nHot lead = specific use case mentioned, business email domain, clear intent, mentions team size or budget or timeline.\\nWarm lead = genuine interest, real full name, some context given, personal gmail is okay IF they explain their business clearly.\\nCold lead = ANY of these: one-line message with no context, no name given, vague words like hi or lmk or just checking, random numbers in email, no business context, message under 20 words with no specifics.\\n\\nWhen in doubt between warm and cold, choose cold.\\nShort vague emails with no business context are always cold.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"={{ 'Name: ' + $json.name + '\\\\nEmail: ' + $json.email + '\\\\nInterest: ' + $json.interest.replace(/\\n/g, ' ') }}\"\n    }\n  ]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        416,
+        0
+      ],
+      "id": "d2e84e26-2e13-4d4d-b36b-9d6deaca90b8",
+      "name": "HTTP Request",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "S3rna9lQ0EA2NKWL",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const rawContent = $input.first().json.choices[0].message.content.trim();\n\nlet cleaned = rawContent;\nif (cleaned.includes(\"```\")) {\n  cleaned = cleaned.split(\"```\")[1] || cleaned;\n  if (cleaned.startsWith(\"json\")) cleaned = cleaned.slice(4);\n  cleaned = cleaned.trim();\n}\n\nlet parsed;\ntry {\n  parsed = JSON.parse(cleaned);\n} catch(e) {\n  parsed = { score: \"cold\", reason: \"parse error: \" + e.message };\n}\n\nreturn [{\n  json: {\n    name: $('Edit Fields').first().json.name,\n    email: $('Edit Fields').first().json.email,\n    interest: $('Edit Fields').first().json.interest,\n    timestamp: $('Edit Fields').first().json.timestamp,\n    score: parsed.score.toLowerCase().trim(),\n    reason: parsed.reason\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        624,
+        0
+      ],
+      "id": "97f09278-69eb-476d-932e-9bfe7ee2426f",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "0a09c4e3-ae45-4082-aebb-9ead4cd2524d",
+              "leftValue": "={{ $json.score}}",
+              "rightValue": "hot",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        832,
+        0
+      ],
+      "id": "cf7461ec-67dd-4cda-9826-a2bbb4040a19",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1mCEWfG__JJzOU6L0tPv7NTxN7LOKSVcKFM6kM6A7XxI",
+          "mode": "list",
+          "cachedResultName": "AI Automation Leads",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1mCEWfG__JJzOU6L0tPv7NTxN7LOKSVcKFM6kM6A7XxI/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Hot Leads",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1mCEWfG__JJzOU6L0tPv7NTxN7LOKSVcKFM6kM6A7XxI/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "name": "={{ $json.name }}",
+            "email": "={{ $json.email }}",
+            "interest": "={{ $json.interest }}",
+            "timestamp": "={{ $json.timestamp }}",
+            "score": "={{ $json.score }}",
+            "reason": "={{ $json.reason }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "name",
+              "displayName": "name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "interest",
+              "displayName": "interest",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "timestamp",
+              "displayName": "timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "score",
+              "displayName": "score",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "reason",
+              "displayName": "reason",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        944,
+        -224
+      ],
+      "id": "99b6f9f7-2f5c-43e5-b90b-bd690944b975",
+      "name": "Append row in sheet1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "PrL2WJZFBunYJcTC",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1mCEWfG__JJzOU6L0tPv7NTxN7LOKSVcKFM6kM6A7XxI",
+          "mode": "list",
+          "cachedResultName": "AI Automation Leads",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1mCEWfG__JJzOU6L0tPv7NTxN7LOKSVcKFM6kM6A7XxI/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1mCEWfG__JJzOU6L0tPv7NTxN7LOKSVcKFM6kM6A7XxI/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "name": "={{ $json.name }}",
+            "email": "={{ $json.email }}",
+            "interest": "={{ $json.interest }}",
+            "timestamp": "={{ $json.timestamp }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "name",
+              "displayName": "name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "interest",
+              "displayName": "interest",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "timestamp",
+              "displayName": "timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        544,
+        -304
+      ],
+      "id": "5e87dd32-afa3-41ba-81be-5e1353863fcb",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "PrL2WJZFBunYJcTC",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1mCEWfG__JJzOU6L0tPv7NTxN7LOKSVcKFM6kM6A7XxI",
+          "mode": "list",
+          "cachedResultName": "AI Automation Leads",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1mCEWfG__JJzOU6L0tPv7NTxN7LOKSVcKFM6kM6A7XxI/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1617483238,
+          "mode": "list",
+          "cachedResultName": "Cold Leads",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1mCEWfG__JJzOU6L0tPv7NTxN7LOKSVcKFM6kM6A7XxI/edit#gid=1617483238"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "name": "={{ $json.name }}",
+            "email": "={{ $json.email }}",
+            "interest": "={{ $json.interest }}",
+            "timestamp": "={{ $json.timestamp }}",
+            "score": "={{ $json.score }}",
+            "reason": "={{ $json.reason }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "name",
+              "displayName": "name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "interest",
+              "displayName": "interest",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "timestamp",
+              "displayName": "timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "score",
+              "displayName": "score",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "reason",
+              "displayName": "reason",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1392,
+        176
+      ],
+      "id": "23e55821-8cb9-45d3-9c15-64a87aa7a612",
+      "name": "Append row in sheet2",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "PrL2WJZFBunYJcTC",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "suryansh2020uttam.knp@gmail.com",
+        "subject": "=🔥 Hot Lead: {{ $json.name }}",
+        "emailType": "text",
+        "message": "=New hot lead just came in.  Name: {{ $json.name }} Email: {{ $json.email }} Interest: {{ $json.interest }} Why hot: {{ $json.reason }} Time: {{ $json.timestamp }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1568,
+        -240
+      ],
+      "id": "cf82736d-a1ff-461e-bb41-251ae9f2a01a",
+      "name": "Send a message",
+      "webhookId": "a7398898-7df3-440a-abe7-c16be6d89a76",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "thuNbJJ9R6YdW6ae",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "4effa96c-ad8a-4e73-8f2b-c63dbe2aafed",
+              "leftValue": "= {{ $json.score }}",
+              "rightValue": "warm",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1072,
+        80
+      ],
+      "id": "76ebb65c-f241-4ff3-8e5f-e3b8b66a5e03",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1mCEWfG__JJzOU6L0tPv7NTxN7LOKSVcKFM6kM6A7XxI",
+          "mode": "list",
+          "cachedResultName": "AI Automation Leads",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1mCEWfG__JJzOU6L0tPv7NTxN7LOKSVcKFM6kM6A7XxI/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1485958539,
+          "mode": "list",
+          "cachedResultName": "Warm Leads",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1mCEWfG__JJzOU6L0tPv7NTxN7LOKSVcKFM6kM6A7XxI/edit#gid=1485958539"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "name": "={{ $json.name }}",
+            "email": "={{ $json.email }}",
+            " interest": "={{ $json.interest }}",
+            "timestamp": "={{ $json.timestamp }}",
+            "score": "={{ $json.score }}",
+            "reason": "={{ $json.reason }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "name",
+              "displayName": "name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": " interest",
+              "displayName": " interest",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "timestamp",
+              "displayName": "timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "score",
+              "displayName": "score",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "reason",
+              "displayName": "reason",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1376,
+        -16
+      ],
+      "id": "bf81543b-8cd9-4b59-893b-06ff6a63f716",
+      "name": "Append row in sheet3",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "PrL2WJZFBunYJcTC",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const replyText = $input.first().json.choices[0].message.content.trim();\n\nreturn [{\n  json: {\n    name: $('Edit Fields').first().json.name,\n    email: $('Edit Fields').first().json.email,\n    interest: $('Edit Fields').first().json.interest,\n    timestamp: $('Edit Fields').first().json.timestamp,\n    score: $('Code in JavaScript').first().json.score,\n    reason: $('Code in JavaScript').first().json.reason,\n    reply: replyText\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1360,
+        -240
+      ],
+      "id": "1c31d138-8da9-4d80-96d5-3bc99c3ca8f3",
+      "name": "Code in JavaScript1"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Code in JavaScript1').first().json.email }}",
+        "subject": "Re: Your Automation Inquiry",
+        "emailType": "text",
+        "message": "={{ $('Code in JavaScript1').first().json.reply }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1776,
+        -240
+      ],
+      "id": "287f7672-d742-4a43-afc9-11ad182708a7",
+      "name": "Send a message1",
+      "webhookId": "fb7b869f-84da-48ce-9c77-5baa7396f2bd",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "thuNbJJ9R6YdW6ae",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.groq.com/openai/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"llama-3.3-70b-versatile\",\n  \"temperature\": 0.7,\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"You are a professional automation consultant. Write a short, warm, personalized email reply to a potential client who just submitted an inquiry. Be concise (3-4 sentences max). Sound human, not robotic. Sign off as 'Suryansh, AI Automation Consultant'.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"={{ 'Write a reply to this lead:\\\\nName: ' + $json.name + '\\\\nInterest: ' + $json.interest.replace(/\\\\n/g, ' ') + '\\\\nReason they are hot: ' + $json.reason }}\"\n    }\n  ]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1120,
+        -224
+      ],
+      "id": "6543d0fe-ffdc-4e07-86e2-250ae3a078dc",
+      "name": "HTTP Request1",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "S3rna9lQ0EA2NKWL",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "simple": false,
+        "filters": {},
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        0,
+        0
+      ],
+      "id": "1db0423f-b47c-4d38-a73c-92fbcbe4d70b",
+      "name": "Gmail Trigger",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "thuNbJJ9R6YdW6ae",
+          "name": "Gmail account 2"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet1": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet3",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Append row in sheet2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript1": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        [
+          {
+            "node": "Send a message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail Trigger": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "8490bd1b-b6a1-4234-b57e-e26ab1603ab2",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "2a9237e5370746337d87458d3e8198982ace50b8fb280871d644acc075e055f2"
+  },
+  "nodeGroups": [],
+  "id": "7WhB73uRyRrMoHKP",
+  "tags": []
+}
