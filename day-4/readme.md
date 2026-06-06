@@ -30,6 +30,10 @@ Manual lead qualification is expensive and slow:
 
 ---
 
+## Workflow Diagram
+![Day 4 - AI Lead Qualifier Workflow](workflow-diagram.png)
+
+
 ## Architecture
 
     Gmail Trigger (polls binarygenius.leads@gmail.com every 1 min)
