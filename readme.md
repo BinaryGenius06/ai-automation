@@ -55,6 +55,12 @@ Each day = one focused build sprint.
 - Cold leads → Cold Leads sheet
 - Files: workflows/lead-qualifier-gmail-trigger.json
 
+### Day 5 — Make.com Survey
+- Recreated Day 3 webhook → Sheets in Make
+- Groq called via HTTP module inside Make
+- Built n8n vs Make decision framework
+- **Stack:** Make.com, Google Sheets API, Groq API
+
 ---
 
 ## Model Selection Rule

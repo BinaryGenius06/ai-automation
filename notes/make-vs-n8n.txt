@@ -1,0 +1,3 @@
+n8n → self-hosted, complex logic, high volume, retainer
+Make → non-technical client, simple flow, demo, client manages it
+Both → n8n backend heavy logic + Make simple triggers client edits

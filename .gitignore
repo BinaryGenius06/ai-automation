@@ -4,3 +4,7 @@ __pycache__/
 *.pdf
 ngrok.exe
 output*.json
+*.log
+node_modules/
+.DS_Store
+Thumbs.db
