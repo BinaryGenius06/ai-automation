@@ -45,13 +45,15 @@ ptb_app = build_application()
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     await ptb_app.initialize()
-    await ptb_app.bot.set_webhook(
-        url=f"{WEBHOOK_URL}/webhook",
-        allowed_updates=Update.ALL_TYPES,
-    )
-    logger.info(f"Webhook set → {WEBHOOK_URL}/webhook")
+    try:
+        await ptb_app.bot.set_webhook(
+            url=f"{WEBHOOK_URL}/webhook",
+            allowed_updates=Update.ALL_TYPES,
+        )
+        logger.info(f"Webhook set → {WEBHOOK_URL}/webhook")
+    except Exception as e:
+        logger.error(f"Webhook set FAILED: {e}")
     yield
-    await ptb_app.bot.delete_webhook()
     await ptb_app.shutdown()
 
 api = FastAPI(lifespan=lifespan)
