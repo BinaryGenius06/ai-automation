@@ -8,3 +8,5 @@ output*.json
 node_modules/
 .DS_Store
 Thumbs.db
+elite-firefly-498408-u0-71de772d71e3.json
+creds_check.txt

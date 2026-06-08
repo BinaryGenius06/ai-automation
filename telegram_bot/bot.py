@@ -1,5 +1,7 @@
 import os
 import logging
+from groq_scorer import score_lead
+from sheets_logger import log_lead
 from dotenv import load_dotenv
 from telegram import Update
 from telegram.ext import (
@@ -57,21 +59,55 @@ async def get_problem(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int
     )
     return WAITING_EMAIL
 async def get_email(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    """Receive email → ack user immediately → score → log → alert if hot."""
     email = update.message.text.strip()
     context.user_data["email"] = email
-    name = context.user_data.get("name", "there")
 
-    # TODO Day 9: send to Groq for scoring here
-    # TODO Day 9: log to Google Sheet here
-    # TODO Day 9: send alert if hot lead here
+    name     = context.user_data.get("name", "")
+    business = context.user_data.get("business", "")
+    problem  = context.user_data.get("problem", "")
 
-    logger.info(f"New lead: {context.user_data}")
-
+    # ACK FIRST — never make user wait for Groq (1-3 sec lag)
     await update.message.reply_text(
         f"Thanks {name}! ✅\n\n"
-        f"We'll review your info and get back to you within 24 hours at {email}.\n\n"
-        "Type /start to begin again."
+        "We'll review your details and get back to you within 24 hours.\n\n"
+        f"Confirmation sent to: {email}"
     )
+
+    # Step 1: Score
+    scoring    = score_lead(name, business, problem, email)
+    score      = scoring.get("score", "cold")
+    reason     = scoring.get("reason", "")
+    confidence = scoring.get("confidence", "low")
+    logger.info(f"Lead scored: {name} | {score} | {reason}")
+
+    # Step 2: Log
+    logged = log_lead(name, business, problem, email, score, reason, confidence)
+    logger.info(f"Sheets log: {'success' if logged else 'failed'}")
+
+    # Step 3: Alert owner if hot
+    if score == "hot":
+        owner_chat_id = os.environ.get("TELEGRAM_OWNER_CHAT_ID")
+        if owner_chat_id:
+            alert_text = (
+                f"🔥 *Hot Lead*\n\n"
+                f"*Name:* {name}\n"
+                f"*Business:* {business}\n"
+                f"*Problem:* {problem}\n"
+                f"*Email:* {email}\n\n"
+                f"*Why hot:* {reason}\n"
+                f"*Confidence:* {confidence}"
+            )
+            try:
+                await context.bot.send_message(
+                    chat_id=int(owner_chat_id),
+                    text=alert_text,
+                    parse_mode="Markdown"
+                )
+                logger.info(f"Hot lead alert sent for {name}")
+            except Exception as e:
+                logger.error(f"Alert failed: {e}")
+
     return ConversationHandler.END
 async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     context.user_data.clear()
