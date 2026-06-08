@@ -90,6 +90,15 @@ Each day = one focused build sprint.
 - 4 test scenarios passed: hot lead, cold lead, borderline, Sheets failure resilience
 - Stack: python-telegram-bot, Groq API, Google Sheets API, service account credentials
 
+### Day 10 — Telegram Bot: Production Deploy (Render + Webhook Mode)
+- Refactored bot.py → handlers.py (importable module) + new bot.py (local polling dev)
+- Built webhook_server.py: FastAPI + Uvicorn → receives Telegram updates via HTTPS POST
+- Switched polling → webhook mode: Telegram pushes updates instantly, zero idle requests
+- Deployed to Render (free tier, no card) → live 24/7 at https://ai-automation-zp9w.onrender.com
+- Added UptimeRobot monitor → pings /health every 5 min → Render never sleeps
+- Fixed clean requirements.txt → removed Windows-only packages (pywinpty etc.) for Linux server
+- Verified: getWebhookInfo → correct URL, full end-to-end test passed in production
+- Files: telegram_bot/handlers.py, telegram_bot/webhook_server.py, Procfile, runtime.txt, requirements.txt
 ---
 
 ## Model Selection Rule
