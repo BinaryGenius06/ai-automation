@@ -7,7 +7,7 @@
 Try it — send `/start` and go through the flow.
 
 Deployed on Render (free, always-on) + UptimeRobot monitoring.
-Live URL: `https://ai-automation-zp9w.onrender.com`
+
 
 ---
 
