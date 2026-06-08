@@ -5,7 +5,15 @@ from dotenv import load_dotenv
 load_dotenv()
 client = Groq(api_key=os.environ["GROQ_API_KEY"])
 def extract_text_from_pdf(pdf_path: str) -> str:
-    """Extract all text from a PDF. Returns empty string if nothing found."""
+    """
+    Extract raw text from a text-based PDF file.
+
+    Args:
+        pdf_path: Path to the PDF file
+
+    Returns:
+        Extracted text as string, empty string if extraction fails
+    """
     full_text = ""
     
     with pdfplumber.open(pdf_path) as pdf:
@@ -16,7 +24,16 @@ def extract_text_from_pdf(pdf_path: str) -> str:
     
     return full_text.strip()
 def extract_structured(raw_text: str, schema_description: str) -> dict:
-    """Updated version with proper error handling."""
+    """
+    Extract structured data from raw text using Groq LLM.
+
+    Args:
+        raw_text: Raw text extracted from PDF
+        schema_description: Natural language description of fields to extract
+
+    Returns:
+        Dictionary with extracted fields, or {"error": "..."} on failure
+    """
     if not raw_text:
         return {"error": "No text extracted from PDF"}
     
@@ -37,9 +54,9 @@ Text:
             messages=[{"role": "user", "content": prompt}],
             temperature=0,
         )
-        
+
         raw = response.choices[0].message.content.strip()
-        
+
         if "```" in raw:
             parts = raw.split("```")
             for part in parts:
@@ -50,9 +67,15 @@ Text:
                     return json.loads(part)
                 except:
                     continue
-        
+
+        # find first { and last } → extract only the JSON part
+        start = raw.find('{')
+        end = raw.rfind('}') + 1
+        if start != -1 and end != 0:
+            return json.loads(raw[start:end])
+
         return json.loads(raw)
-    
+
     except json.JSONDecodeError as e:
         return {
             "error": "JSON parsing failed",
@@ -82,10 +105,11 @@ def process_pdf(pdf_path: str, schema_description: str) -> dict:
     
     return result
 if __name__ == "__main__":
-    # replace paths below with your own PDF paths
+    # replace paths and print statemnts below according to your own PDF paths
+    # TEST : Group Theory Tutorial
     result = process_pdf(
-        r"D:\PROJECT\1\AI AUTOMATION\day-2\Suryansh_Uttam.pdf", 
-        "name, email, phone, skills (list)"
+        r"D:\PROJECT\1\AI AUTOMATION\day-2\tutorial_groups.pdf",
+        "course_code, topic, problems (list of {problem_number, description, subtasks (list)}), challenging_problems (list)"
     )
-    save_result(result, "output_resume.json")
-    print(json.dumps(result, indent=2))
+    print("\n=== GROUP THEORY OUTPUT ===")
+    print(json.dumps(result, indent=2, ensure_ascii=False))

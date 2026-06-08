@@ -25,6 +25,10 @@ Commercial value:
 
 ---
 
+## Demo
+![PDF Extractor Output](assets/demo_output.png)
+
+
 ## Tech Stack
 
 - Python 3.13
@@ -304,5 +308,6 @@ This function is the foundation of every document automation pipeline. Change th
 
 ---
 
-## Next — Day 3
-n8n setup via Docker. Build a webhook → Google Sheets pipeline. This is the visual automation layer that clients actually see and understand. Day 2 was the Python backend. Day 3 is the no-code frontend.
+---
+*Built as part of an AI automation portfolio. Available for freelance.*
+*Contact: binarygenius.leads@gmail.com*

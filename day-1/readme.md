@@ -240,6 +240,3 @@ A developer who can reliably extract structured data from any document using LLM
 Day 1 built the core of all of that.
 
 ---
-
-## Next — Day 2
-pdfplumber + Groq together. Take any PDF file → extract text → run extract_structured() → get clean JSON. Test on a real resume, a tutorial sheet, and a lecture notes PDF. Build error handling and file output.
