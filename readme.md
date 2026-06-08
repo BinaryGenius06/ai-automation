@@ -61,6 +61,26 @@ Each day = one focused build sprint.
 - Built n8n vs Make decision framework
 - **Stack:** Make.com, Google Sheets API, Groq API
 
+### Day 6 — Market Research + Outreach Prep
+- Built 20-target Notion outreach tracker (EdTech, D2C, Recruitment sectors)
+- Each target has specific pain signal, founder name, contact channel
+- 2 outreach templates written (warm + cold) saved to Notion
+- Tools: Notion, LinkedIn, Instagram, web research
+
+### Day 7 — GitHub Portfolio Polish
+- Rewrote day-2 + day-4 READMEs as product pages (problem first, demo, use cases)
+- Added workflow screenshot + demo output screenshot as assets
+- Added docstrings to all functions, created .env.example
+- Polished GitHub profile: bio, pinned repos, ecommerce-support-agent README
+- Week 1 retrospective written in Notion
+
+### Day 8 — Telegram Lead Bot: Architecture + Skeleton
+- Designed 4-state conversation flow: WAITING_NAME → WAITING_BUSINESS → WAITING_PROBLEM → WAITING_EMAIL
+- Built full bot skeleton using python-telegram-bot ConversationHandler
+- All edge cases handled: /restart, short name, photo rejection, /start mid-flow
+- 3x TODO Day 9 markers placed for Groq + Sheets + alert integration
+- Files: telegram_bot/bot.py, telegram_bot/__init__.py
+
 ---
 
 ## Model Selection Rule
