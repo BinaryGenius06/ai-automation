@@ -31,7 +31,7 @@ Manual lead qualification is expensive and slow:
 ---
 
 ## Workflow Diagram
-![Day 4 - AI Lead Qualifier Workflow](assets/workflow_screenshot.png)
+![Day 4 - AI Lead Qualifier Workflow](assets/workflow_diagram.png)
 
 
 ## Architecture
