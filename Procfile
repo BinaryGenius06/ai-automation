@@ -1,0 +1,1 @@
+web: uvicorn telegram_bot.webhook_server:api --host 0.0.0.0 --port $PORT
