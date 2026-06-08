@@ -99,6 +99,17 @@ Each day = one focused build sprint.
 - Fixed clean requirements.txt → removed Windows-only packages (pywinpty etc.) for Linux server
 - Verified: getWebhookInfo → correct URL, full end-to-end test passed in production
 - Files: telegram_bot/handlers.py, telegram_bot/webhook_server.py, Procfile, runtime.txt, requirements.txt
+
+### Day 11 — AI Customer Support Bot: PDF Knowledge Base + Chat UI
+- Built knowledge_base.py: PDF loader (pdfplumber) → chunker (400 char + overlap) → keyword search
+- Built app.py: FastAPI backend → /load, /chat, /reset, /status endpoints
+- Conversation memory: last 4 exchanges preserved per session
+- Escalation detection: bot flags "I don't know" answers → never hallucinates silently
+- Built clean chat UI (vanilla HTML/CSS/JS) → KaTeX LaTeX rendering for math PDFs
+- Fixed groq SDK hanging on Windows → replaced with direct httpx calls to Groq API
+- Tested via ngrok public URL → works on phone, loads any PDF, answers in real time
+- Stack: pdfplumber, Groq (Llama 3.3-70b via httpx), FastAPI, KaTeX, ngrok
+- Files: support_bot/knowledge_base.py, support_bot/app.py, support_bot/static/index.html
 ---
 
 ## Model Selection Rule
