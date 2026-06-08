@@ -79,7 +79,16 @@ Each day = one focused build sprint.
 - Built full bot skeleton using python-telegram-bot ConversationHandler
 - All edge cases handled: /restart, short name, photo rejection, /start mid-flow
 - 3x TODO Day 9 markers placed for Groq + Sheets + alert integration
-- Files: telegram_bot/bot.py, telegram_bot/__init__.py
+- Files: telegram_bot/bot.py, telegram_bot/__init__.
+
+### Day 9 — Telegram Bot: Groq Scoring + Sheets Logging + Hot Lead Alert
+- Replaced 3x TODO markers with production logic: Groq scoring → Sheets logging → owner alert
+- Built groq_scorer.py: standalone LLM classifier → hot/cold + reason + confidence
+- Built sheets_logger.py: Google Sheets API (service account auth) → routes hot/cold to correct tab
+- Wired both into bot.py: user ack sent first, Groq runs async, owner alerted instantly on hot leads
+- Bot never crashes even if Groq or Sheets fails (try/except returns False, never raises)
+- 4 test scenarios passed: hot lead, cold lead, borderline, Sheets failure resilience
+- Stack: python-telegram-bot, Groq API, Google Sheets API, service account credentials
 
 ---
 
