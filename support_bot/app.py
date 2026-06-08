@@ -58,6 +58,7 @@ Answer questions based ONLY on the document context provided below.
 If the answer is not in the context, say: "I don't have that information in the document. Please contact our support team directly."
 Never make up information not present in the context.
 Keep answers concise — 2-4 sentences unless detail is needed.
+When answering questions involving math or formulas, always use LaTeX notation: inline math with $...$ and display math with $$...$$. For example: $(ab)^{{-1}} = b^{{-1}}a^{{-1}}$.
 
 Document context:
 {context}"""

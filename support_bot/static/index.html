@@ -5,6 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>DocChat — AI Support Bot</title>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"
+    onload="katexReady = true;"></script>
   <style>
     :root {
       --bg: #f0f2f5;
@@ -53,7 +57,6 @@
       gap: 12px;
     }
 
-    /* TOP BAR */
     .topbar {
       display: flex;
       align-items: center;
@@ -134,7 +137,6 @@
       50% { box-shadow: 0 0 0 4px rgba(16,185,129,0.1); }
     }
 
-    /* LOAD PANEL */
     .load-panel {
       background: var(--surface);
       border-radius: var(--radius);
@@ -236,7 +238,6 @@
       color: var(--text-primary);
     }
 
-    /* DOC INFO */
     .doc-info {
       display: none;
       align-items: center;
@@ -249,7 +250,6 @@
     }
 
     .doc-info.visible { display: flex; }
-
     .doc-info svg { width: 14px; height: 14px; color: var(--accent); flex-shrink: 0; }
 
     .doc-info-text {
@@ -269,7 +269,6 @@
       border: 1px solid #bfdbfe;
     }
 
-    /* CHAT WINDOW */
     .chat-window {
       background: var(--surface);
       border-radius: var(--radius);
@@ -295,7 +294,6 @@
     .messages::-webkit-scrollbar-track { background: transparent; }
     .messages::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
 
-    /* MESSAGES */
     .msg-row {
       display: flex;
       gap: 10px;
@@ -379,7 +377,6 @@
       font-style: italic;
     }
 
-    /* THINKING */
     .thinking-bubble {
       display: flex;
       gap: 4px;
@@ -407,7 +404,6 @@
       30% { transform: translateY(-6px); }
     }
 
-    /* INPUT BAR */
     .input-bar {
       padding: 14px 16px;
       border-top: 1px solid var(--border);
@@ -463,7 +459,6 @@
     .btn-send:disabled { background: var(--border); cursor: not-allowed; }
     .btn-send svg { width: 17px; height: 17px; }
 
-    /* EMPTY STATE */
     .empty-state {
       flex: 1;
       display: flex;
@@ -500,12 +495,21 @@
       max-width: 260px;
       line-height: 1.6;
     }
+
+    /* KaTeX overrides inside bot bubbles */
+    .msg-row.bot .bubble .katex-display {
+      margin: 6px 0;
+      overflow-x: auto;
+    }
+
+    .msg-row.bot .bubble .katex {
+      font-size: 1em;
+    }
   </style>
 </head>
 <body>
 <div class="wrapper">
 
-  <!-- TOP BAR -->
   <div class="topbar">
     <div class="brand">
       <div class="brand-icon">
@@ -522,7 +526,6 @@
     </div>
   </div>
 
-  <!-- LOAD PANEL -->
   <div class="load-panel">
     <div class="load-label">Load Document</div>
     <div class="load-row">
@@ -546,7 +549,6 @@
     </div>
   </div>
 
-  <!-- CHAT WINDOW -->
   <div class="chat-window">
     <div class="messages" id="messages">
       <div class="empty-state" id="emptyState">
@@ -569,6 +571,38 @@
 
 <script>
   const API = 'http://127.0.0.1:8000';
+  let katexReady = false;
+
+  // Wait for KaTeX to load
+  document.addEventListener('DOMContentLoaded', () => {
+    const checkKatex = setInterval(() => {
+      if (typeof renderMathInElement !== 'undefined') {
+        katexReady = true;
+        clearInterval(checkKatex);
+      }
+    }, 100);
+  });
+
+  const KATEX_OPTIONS = {
+    delimiters: [
+      { left: '$$', right: '$$', display: true },
+      { left: '$', right: '$', display: false },
+      { left: '\\(', right: '\\)', display: false },
+      { left: '\\[', right: '\\]', display: true }
+    ],
+    throwOnError: false,
+    errorColor: '#cc0000'
+  };
+
+  function renderLatex(element) {
+    if (katexReady && typeof renderMathInElement !== 'undefined') {
+      try {
+        renderMathInElement(element, KATEX_OPTIONS);
+      } catch(e) {
+        // silently fail — plain text still shows
+      }
+    }
+  }
 
   function removeEmpty() {
     const e = document.getElementById('emptyState');
@@ -607,8 +641,28 @@
     }
 
     const txt = document.createElement('span');
-    txt.textContent = text;
-    bubble.appendChild(txt);
+    // Use innerHTML for bot messages so KaTeX can parse — textContent for user (safety)
+    if (type === 'user') {
+      txt.textContent = text;
+    } else {
+      txt.innerHTML = text
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        // restore LaTeX delimiters after escaping
+        .replace(/\\\(/g, '\\(').replace(/\\\)/g, '\\)')
+        .replace(/\\\[/g, '\\[').replace(/\\\]/g, '\\]');
+      // Don't escape $ — KaTeX needs them raw
+    }
+
+    // For bot messages: set innerHTML directly to preserve $ signs for KaTeX
+    if (type !== 'user') {
+      bubble.innerHTML = (isEscalate ? bubble.innerHTML : '') +
+        `<span>${text}</span>`;
+      renderLatex(bubble);
+    } else {
+      bubble.appendChild(txt);
+    }
 
     row.appendChild(avatar);
     row.appendChild(bubble);
@@ -661,13 +715,11 @@
         return;
       }
 
-      const badge = document.getElementById('statusBadge');
-      badge.classList.add('active');
+      document.getElementById('statusBadge').classList.add('active');
       document.getElementById('statusDot').style.background = '#10b981';
       document.getElementById('statusText').textContent = 'Document ready';
 
-      const docInfo = document.getElementById('docInfo');
-      docInfo.classList.add('visible');
+      document.getElementById('docInfo').classList.add('visible');
       document.getElementById('docName').textContent = path.split('/').pop();
       document.getElementById('docChunks').textContent = `${data.chunks} chunks`;
 
@@ -708,8 +760,7 @@
   async function resetBot() {
     await fetch(`${API}/reset`, { method: 'DELETE' });
 
-    const msgs = document.getElementById('messages');
-    msgs.innerHTML = `
+    document.getElementById('messages').innerHTML = `
       <div class="empty-state" id="emptyState">
         <div class="empty-icon">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
