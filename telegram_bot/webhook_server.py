@@ -63,7 +63,7 @@ async def telegram_webhook(request: Request):
     await ptb_app.process_update(update)
     return {"ok": True}
 
-@api.get("/health")
+@api.api_route("/health", methods=["GET", "HEAD"])
 async def health():
     return {"status": "running"}
 
