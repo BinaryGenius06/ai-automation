@@ -133,7 +133,7 @@ async def reset():
 async def status():
     return {"doc_loaded": doc_loaded, "chunks": len(knowledge_base), "history_turns": len(chat_history) // 2}
 
-@app.get("/health")
+@app.api_route("/health", methods=["GET", "HEAD"])
 async def health():
     return {"status": "running"}
 
