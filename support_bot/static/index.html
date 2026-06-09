@@ -570,7 +570,7 @@
 </div>
 
 <script>
-  const API = 'http://127.0.0.1:8000';
+  
   let katexReady = false;
 
   // Wait for KaTeX to load
@@ -703,7 +703,7 @@
     addMsg(`Loading ${path}...`, 'system');
 
     try {
-      const res = await fetch(`${API}/load`, {
+      const res = await fetch('/load', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ pdf_url: path }),
