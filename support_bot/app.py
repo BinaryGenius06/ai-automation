@@ -5,9 +5,14 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import httpx
 from dotenv import load_dotenv
-from support_bot.knowledge_base import load_pdf, chunk_text, search_chunks
+from support_bot.knowledge_base import load_pdf, chunk_text, search_chunks, load_from_url
 
 load_dotenv()
+import logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+
 
 app = FastAPI()
 
@@ -26,7 +31,8 @@ doc_loaded:     str = ""
 
 
 class LoadRequest(BaseModel):
-    pdf_path: str
+    pdf_path: str = ""
+    pdf_url:  str = ""
 
 class ChatRequest(BaseModel):
     message: str
@@ -35,15 +41,40 @@ class ChatRequest(BaseModel):
 @app.post("/load")
 async def load_document(req: LoadRequest):
     global knowledge_base, chat_history, doc_loaded
-    if not os.path.exists(req.pdf_path):
-        raise HTTPException(status_code=404, detail=f"File not found: {req.pdf_path}")
-    text = load_pdf(req.pdf_path)
+
+    if req.pdf_url:
+        try:
+            logger.info(f"Loading from URL: {req.pdf_url[:80]}")
+            text = load_from_url(req.pdf_url)
+            source = req.pdf_url.split("/")[-1].split("?")[0] or "remote_doc"
+        except Exception as e:
+            logger.error(f"URL load failed: {e}")
+            raise HTTPException(status_code=400, detail=str(e))
+
+    elif req.pdf_path:
+        if not os.path.exists(req.pdf_path):
+            raise HTTPException(status_code=404, detail=f"File not found: {req.pdf_path}")
+        logger.info(f"Loading from path: {req.pdf_path}")
+        text = load_pdf(req.pdf_path)
+        source = req.pdf_path
+
+    else:
+        raise HTTPException(status_code=400, detail="Provide pdf_path or pdf_url")
+
     if not text:
         raise HTTPException(status_code=400, detail="Could not extract text. PDF may be scanned.")
+
     knowledge_base = chunk_text(text)
     chat_history   = []
-    doc_loaded     = req.pdf_path
-    return {"status": "loaded", "file": req.pdf_path, "chunks": len(knowledge_base), "chars": len(text)}
+    doc_loaded     = source
+
+    logger.info(f"Loaded: {source} → {len(knowledge_base)} chunks")
+    return {
+        "status": "loaded",
+        "source": source,
+        "chunks": len(knowledge_base),
+        "chars":  len(text)
+    }
 
 
 @app.post("/chat")
@@ -102,6 +133,9 @@ async def reset():
 async def status():
     return {"doc_loaded": doc_loaded, "chunks": len(knowledge_base), "history_turns": len(chat_history) // 2}
 
+@app.get("/health")
+async def health():
+    return {"status": "running"}
 
 
 app.mount("/", StaticFiles(directory="support_bot/static", html=True), name="static")

@@ -531,7 +531,7 @@
     <div class="load-row">
       <div class="load-input-wrap">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-        <input class="load-input" type="text" id="pdfPath" placeholder="day-2/tutorial_groups.pdf" />
+        <input class="load-input" type="text" id="pdfPath" placeholder="Paste PDF URL (Google Drive, Dropbox, any direct link)" />
       </div>
       <button class="btn-load" onclick="loadDoc()">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
@@ -706,7 +706,7 @@
       const res = await fetch(`${API}/load`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ pdf_path: path }),
+        body: JSON.stringify({ pdf_url: path }),
       });
       const data = await res.json();
 
