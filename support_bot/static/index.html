@@ -743,7 +743,7 @@
     showThinking();
 
     try {
-      const res = await fetch(`${API}/chat`, {
+      const res = await fetch('/ask', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: msg }),
@@ -758,7 +758,7 @@
   }
 
   async function resetBot() {
-    await fetch(`${API}/reset`, { method: 'DELETE' });
+    await fetch('/reset', { method: 'DELETE' });
 
     document.getElementById('messages').innerHTML = `
       <div class="empty-state" id="emptyState">

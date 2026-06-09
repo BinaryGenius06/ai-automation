@@ -77,7 +77,7 @@ async def load_document(req: LoadRequest):
     }
 
 
-@app.post("/chat")
+@app.post("/ask")
 async def chat(req: ChatRequest):
     global chat_history
     logger.info(f"CHAT HIT: {req.message[:50]}")
