@@ -96,8 +96,8 @@ Document context:
     messages = [{"role": "system", "content": system_prompt}]
     messages += chat_history[-8:]
     messages.append({"role": "user", "content": req.message})
-    with httpx.Client(timeout=30) as client:
-        response = client.post(
+    async with httpx.AsyncClient(timeout=30) as client:
+        response = await client.post(
             "https://api.groq.com/openai/v1/chat/completions",
             headers={
                 "Authorization": f"Bearer {GROQ_API_KEY}",
