@@ -80,6 +80,7 @@ async def load_document(req: LoadRequest):
 @app.post("/chat")
 async def chat(req: ChatRequest):
     global chat_history
+    logger.info(f"CHAT HIT: {req.message[:50]}")
     if not knowledge_base:
         return {"answer": "No document loaded yet. Please load a PDF first."}
     relevant_chunks = search_chunks(req.message, knowledge_base, top_k=3)
