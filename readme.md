@@ -9,21 +9,32 @@ Each day = one focused build sprint.
 - Python 3.13
 - Groq API (Llama 3.3-70b) — speed + volume
 - Google Gemini (gemini-2.5-flash) — reasoning + quality
-- python-dotenv, pdfplumber, langchain
+- python-dotenv, pdfplumber, httpx, aiofiles
+- FastAPI + Uvicorn — API backend
+- python-telegram-bot 22.7 — Telegram bot framework
 - n8n self-hosted via Docker — visual workflow automation
 - Docker Desktop
 - ngrok — public URL for local webhooks
 - Google Sheets API + OAuth2
+- Render — free cloud deployment (no card)
+- UptimeRobot — uptime monitoring
+- KaTeX — LaTeX math rendering in chat UI
 
 ---
 
 ## Structure
 
     ai-automation/
-    ├── day-1/     → LLM API integration + data extraction pipeline
-    ├── day-2/     → PDF to structured JSON extractor
-    ├── day-3/     → n8n webhook to Google Sheets automation
-    ├── workflows/ → exported n8n workflow JSONs
+    ├── day-1/         → LLM API integration
+    ├── day-2/         → PDF to structured JSON extractor
+    ├── day-3/         → n8n webhook to Google Sheets
+    ├── day-4/         → AI lead qualifier (Gmail + Groq)
+    ├── day-5/         → Make.com survey
+    ├── telegram_bot/  → AI lead qualification bot (LIVE)
+    ├── support_bot/   → AI customer support bot (LIVE)
+    ├── workflows/     → exported n8n + Make workflow JSONs
+    ├── Procfile       → Render deployment config
+    ├── runtime.txt    → Python version pin
     └── README.md
 
 ---
@@ -110,6 +121,16 @@ Each day = one focused build sprint.
 - Tested via ngrok public URL → works on phone, loads any PDF, answers in real time
 - Stack: pdfplumber, Groq (Llama 3.3-70b via httpx), FastAPI, KaTeX, ngrok
 - Files: support_bot/knowledge_base.py, support_bot/app.py, support_bot/static/index.html
+
+### Day 12 — Support Bot: Production Deploy
+- Added URL-based PDF loading → works on any server (no local file needed)
+- Added SSRF protection → blocks private/internal URLs
+- Added 10MB file size limit → protects free tier compute
+- Added /health endpoint → UptimeRobot monitoring
+- Deployed to Render (free tier, always-on via UptimeRobot)
+- window.location.origin → UI works on localhost and production automatically
+- Live: https://support-bot-wc7k.onrender.com
+- Files: support_bot/knowledge_base.py, support_bot/app.py, support_bot/static/index.html
 ---
 
 ## Model Selection Rule
@@ -130,6 +151,8 @@ Everything is 100% free:
 - ngrok free tier → free
 - Google Sheets API → free
 - GitHub → free
+- Render → free tier, no credit card
+- UptimeRobot → free, 50 monitors
 
 ---
 

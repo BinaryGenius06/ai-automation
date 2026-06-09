@@ -7,6 +7,7 @@
 Try it — send `/start` and go through the flow.
 
 Deployed on Render (free, always-on) + UptimeRobot monitoring.
+Live server: https://ai-automation-zp9w.onrender.com
 
 
 ---
@@ -159,11 +160,11 @@ Start Command : uvicorn telegram_bot.webhook_server:api --host 0.0.0.0 --port $P
 Instance Type : Free
 ```
 
-**4. Set all env vars** (same as .env above + `WEBHOOK_URL=https://your-app.onrender.com`)
+**4. Set all env vars** (same as .env above + `WEBHOOK_URL=https://ai-automation-zp9w.onrender.com`)
 
 **5. Deploy → copy live URL → set as WEBHOOK_URL**
 
-**6. Add UptimeRobot monitor** → uptimerobot.com → HTTP monitor → `https://your-app.onrender.com/health` → every 5 min
+**6. Add UptimeRobot monitor** → `https://ai-automation-zp9w.onrender.com/health` → every 5 min
 
 ---
 
