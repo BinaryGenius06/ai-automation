@@ -21,7 +21,18 @@ MAX_PDF_BYTES = 10 * 1024 * 1024
 # Block internal/private URLs — basic SSRF protection
 BLOCKED_HOSTS = {"localhost", "127.0.0.1", "0.0.0.0", "169.254.169.254"}
 
+def convert_gdrive_url(url: str) -> str:
+    """Auto-convert any Google Drive share/view URL to direct download URL."""
+    import re
+    if "drive.google.com" in url:
+        match = re.search(r'/d/([a-zA-Z0-9_-]+)', url)
+        if match:
+            file_id = match.group(1)
+            return f"https://drive.google.com/uc?export=download&id={file_id}"
+    return url
+
 def load_from_url(url: str) -> str:
+    url = convert_gdrive_url(url)
     """
     Download PDF from public URL and extract text.
     Blocks private IPs. Enforces 10MB size limit.
