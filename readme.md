@@ -5,6 +5,17 @@ Each day = one focused build sprint.
 
 ---
 
+## Live Projects
+
+| Project | What it does | Stack | Live | Demo |
+|---|---|---|---|---|
+| [Telegram Lead Bot](telegram_bot/) | Qualifies leads hot/cold via AI, alerts owner on hot leads | python-telegram-bot · Groq · Google Sheets · FastAPI | [t.me/leadqual_suryansh_bot](https://t.me/leadqual_suryansh_bot) | [▶ Watch](https://www.loom.com/share/e2e0f2f667b54e1da11559ffbd59d2a9) |
+| [AI Support Bot](support_bot/) | Answers customer questions from any PDF or URL | FastAPI · Groq · pdfplumber · KaTeX | [support-bot-wc7k.onrender.com](https://support-bot-wc7k.onrender.com) | [▶ Watch](https://www.loom.com/share/07e5c4e13c014f2fae4c7e65d30b23e1) |
+| [n8n Lead Pipeline](workflows/) | Webhook → Groq scoring → Sheets → Gmail auto-reply | n8n · Groq · Gmail API · Google Sheets | Local / Docker | — |
+| [PDF Data Extractor](day-2/) | Any PDF → structured JSON via Groq | Groq · pdfplumber · Python | Script | — |
+
+---
+
 ## Stack
 - Python 3.13
 - Groq API (Llama 3.3-70b) — speed + volume
@@ -56,7 +67,7 @@ Each day = one focused build sprint.
 - n8n running locally via Docker
 - Built webhook → Edit Fields → Google Sheets pipeline
 - ngrok public URL for live demos
-- Files: workflows/lead-capture-google-sheets.json\
+- Files: workflows/lead-capture-google-sheets.json
 
 ### Day 4 — AI Lead Qualifier (Gmail Trigger + Groq Scoring)
 - Gmail Trigger → reads emails sent to binarygenius.leads@gmail.com
@@ -90,7 +101,7 @@ Each day = one focused build sprint.
 - Built full bot skeleton using python-telegram-bot ConversationHandler
 - All edge cases handled: /restart, short name, photo rejection, /start mid-flow
 - 3x TODO Day 9 markers placed for Groq + Sheets + alert integration
-- Files: telegram_bot/bot.py, telegram_bot/__init__.
+- Files: telegram_bot/bot.py, telegram_bot/__init__.py
 
 ### Day 9 — Telegram Bot: Groq Scoring + Sheets Logging + Hot Lead Alert
 - Replaced 3x TODO markers with production logic: Groq scoring → Sheets logging → owner alert
@@ -131,6 +142,18 @@ Each day = one focused build sprint.
 - window.location.origin → UI works on localhost and production automatically
 - Live: https://support-bot-wc7k.onrender.com
 - Files: support_bot/knowledge_base.py, support_bot/app.py, support_bot/static/index.html
+
+### Day 13 — LinkedIn Overhaul + GitHub Profile + Deployment Verification
+- Created GitHub profile README (BinaryGenius06/BinaryGenius06) — live projects table, stack, contact
+- Pinned ai-automation + ecommerce-support-agent repos on GitHub profile
+- Added Loom demo links to telegram_bot/README.md and support_bot/README.md
+- Verified all live deployments: Telegram bot ✅ · Support bot ✅ · UptimeRobot monitors green ✅
+- Confirmed .env in .gitignore, no secrets in repo ✅
+- Outreach pipeline expanded: 19 → 39 targets in Notion (EdTech, D2C, Recruitment)
+- Days 1–12 audit completed in Notion — no real gaps going into Week 3
+- LinkedIn new account submitted for manual review (pending 2–5 days)
+- Outreach readiness: 2 live URLs ✅ · 2 Looms ✅ · 39 targets ✅ · 2 templates ✅
+
 ---
 
 ## Model Selection Rule
