@@ -9,6 +9,8 @@ Try it — send `/start` and go through the flow.
 Deployed on Render (free, always-on) + UptimeRobot monitoring.
 Live server: https://ai-automation-zp9w.onrender.com
 
+[▶ Watch Demo (Loom)](https://www.loom.com/share/e2e0f2f667b54e1da11559ffbd59d2a9)
+
 
 ---
 

@@ -2,6 +2,8 @@
 ## Live Demo
 **[https://support-bot-wc7k.onrender.com](https://support-bot-wc7k.onrender.com)**
 
+[▶ Watch Demo (Loom)](https://www.loom.com/share/07e5c4e13c014f2fae4c7e65d30b23e1)
+
 Try it — paste any PDF URL → ask questions instantly.
 
 Answers questions about any document using Groq (Llama 3.3-70b).
