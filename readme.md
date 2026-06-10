@@ -11,10 +11,7 @@ Each day = one focused build sprint.
 |---|---|---|---|---|
 | [Telegram Lead Bot](telegram_bot/) | Qualifies leads hot/cold via AI, alerts owner on hot leads | python-telegram-bot · Groq · Google Sheets · FastAPI | [t.me/leadqual_suryansh_bot](https://t.me/leadqual_suryansh_bot) | [▶ Watch](https://www.loom.com/share/e2e0f2f667b54e1da11559ffbd59d2a9) |
 | [AI Support Bot](support_bot/) | Answers customer questions from any PDF or URL | FastAPI · Groq · pdfplumber · KaTeX | [support-bot-wc7k.onrender.com](https://support-bot-wc7k.onrender.com) | [▶ Watch](https://www.loom.com/share/07e5c4e13c014f2fae4c7e65d30b23e1) |
-| [n8n Lead Pipeline](workflows/) | Webhook → Groq scoring → Sheets → Gmail auto-reply | n8n · Groq · Gmail API · Google Sheets | Local / Docker | — |
-| [PDF Data Extractor](day-2/) | Any PDF → structured JSON via Groq | Groq · pdfplumber · Python | Script | — |
 
----
 
 ## Stack
 - Python 3.13
