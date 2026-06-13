@@ -154,6 +154,17 @@ Each day = one focused build sprint.
 - LinkedIn new account submitted for manual review (pending 2–5 days)
 - Outreach readiness: 2 live URLs ✅ · 2 Looms ✅ · 39 targets ✅ · 2 templates ✅
 
+### Day 14 — Outreach CRM + Templates + Pre-Week 3 Prep
+- Upgraded Notion Outreach Pipeline into a working CRM: added Follow-up Date, Reply Received, Call Booked, Project Value, Priority, Loom Sent + "Days Since Sent" formula
+- Created 4 database views: This Week, Hot Pipeline, Follow-ups Due, All Contacts
+- Assigned Priority (High/Medium/Low) across all 39 targets
+- Wrote Template 3 (IIT Peer Warm) — third outreach template alongside Cold + Warm from Day 6
+- Drafted 2 fully personalised IIT-warm messages, ready to send Day 15
+- Documented outreach funnel math (30 → 6 → 3 → 2 → 1 → 0.5) + follow-up rule (Day 0/3/7/8)
+- Built Discovery Call Script — 25-min structure + 5 sector-specific diagnose questions
+- Verified both Loom demo links resolve correctly
+- Outreach readiness: CRM live ✅ · 3 templates ✅ · 2 personalised drafts ✅ · funnel math understood ✅ · call script ready ✅
+
 ---
 
 ## Model Selection Rule
