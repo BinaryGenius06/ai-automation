@@ -33,17 +33,51 @@ Each day = one focused build sprint.
 ## Structure
 
     ai-automation/
-    ├── day-1/         → LLM API integration
-    ├── day-2/         → PDF to structured JSON extractor
-    ├── day-3/         → n8n webhook to Google Sheets
-    ├── day-4/         → AI lead qualifier (Gmail + Groq)
-    ├── day-5/         → Make.com survey
-    ├── telegram_bot/  → AI lead qualification bot (LIVE)
-    ├── support_bot/   → AI customer support bot (LIVE)
-    ├── workflows/     → exported n8n + Make workflow JSONs
-    ├── Procfile       → Render deployment config
-    ├── runtime.txt    → Python version pin
-    └── README.md
+    ├── day-1/                  → LLM API integration (Groq + Gemini)
+    │   ├── groq_test.py
+    │   ├── gemini_test.py
+    │   ├── structured_output.py
+    │   └── readme.md
+    ├── day-2/                  → PDF to structured JSON extractor
+    │   ├── pdf_extractor.py
+    │   ├── day2_explore.py
+    │   ├── output_resume.json
+    │   ├── tutorial_groups.pdf
+    │   ├── assets/demo_output.png
+    │   └── readme.md
+    ├── day-3/                  → n8n webhook to Google Sheets
+    │   └── readme.md
+    ├── day-4/                  → AI lead qualifier (Gmail + Groq)
+    │   ├── assets/workflow_diagram.png
+    │   └── readme.md
+    ├── day-5/                  → Make.com survey
+    │   └── readme.md
+    ├── telegram_bot/           → AI lead qualification bot (LIVE)
+    │   ├── bot.py              → local polling dev runner
+    │   ├── handlers.py         → conversation logic (importable)
+    │   ├── webhook_server.py   → FastAPI webhook (deployed)
+    │   ├── groq_scorer.py      → LLM hot/cold classifier
+    │   ├── sheets_logger.py    → Google Sheets routing
+    │   ├── __init__.py
+    │   └── readme.md
+    ├── support_bot/            → AI customer support bot (LIVE)
+    │   ├── app.py              → FastAPI backend
+    │   ├── knowledge_base.py   → PDF loader + chunker + search
+    │   ├── static/index.html  → chat UI (KaTeX)
+    │   ├── __init__.py
+    │   └── readme.md
+    ├── workflows/              → exported n8n + Make workflow JSONs
+    │   ├── lead-capture-webhook.json
+    │   ├── lead-qualifier-gmail-trigger.json
+    │   └── Integration Webhooks.blueprint.json
+    ├── notes/
+    │   └── make-vs-n8n.txt
+    ├── .env.example
+    ├── .gitignore
+    ├── Procfile                → Render deployment config
+    ├── runtime.txt             → Python version pin
+    ├── requirements.txt
+    └── readme.md
 
 ---
 
@@ -64,12 +98,12 @@ Each day = one focused build sprint.
 - n8n running locally via Docker
 - Built webhook → Edit Fields → Google Sheets pipeline
 - ngrok public URL for live demos
-- Files: workflows/lead-capture-google-sheets.json
+- Files: workflows/lead-capture-webhook.json
 
 ### Day 4 — AI Lead Qualifier (Gmail Trigger + Groq Scoring)
 - Gmail Trigger → reads emails sent to binarygenius.leads@gmail.com
 - Groq classifies leads → hot / warm / cold (3-tier scoring)
-- Hot leads → Hot Leads sheet + alert to suryansh2020 + personalized auto-reply to sender
+- Hot leads → Hot Leads sheet + owner alert + personalized auto-reply to sender
 - Warm leads → Warm Leads sheet
 - Cold leads → Cold Leads sheet
 - Files: workflows/lead-qualifier-gmail-trigger.json
@@ -78,7 +112,7 @@ Each day = one focused build sprint.
 - Recreated Day 3 webhook → Sheets in Make
 - Groq called via HTTP module inside Make
 - Built n8n vs Make decision framework
-- **Stack:** Make.com, Google Sheets API, Groq API
+- Stack: Make.com, Google Sheets API, Groq API
 
 ### Day 6 — Market Research + Outreach Prep
 - Built 20-target Notion outreach tracker (EdTech, D2C, Recruitment sectors)
@@ -121,7 +155,7 @@ Each day = one focused build sprint.
 
 ### Day 11 — AI Customer Support Bot: PDF Knowledge Base + Chat UI
 - Built knowledge_base.py: PDF loader (pdfplumber) → chunker (400 char + overlap) → keyword search
-- Built app.py: FastAPI backend → /load, /chat, /reset, /status endpoints
+- Built app.py: FastAPI backend → /load, /ask, /reset, /status endpoints
 - Conversation memory: last 4 exchanges preserved per session
 - Escalation detection: bot flags "I don't know" answers → never hallucinates silently
 - Built clean chat UI (vanilla HTML/CSS/JS) → KaTeX LaTeX rendering for math PDFs
@@ -131,24 +165,25 @@ Each day = one focused build sprint.
 - Files: support_bot/knowledge_base.py, support_bot/app.py, support_bot/static/index.html
 
 ### Day 12 — Support Bot: Production Deploy
-- Added URL-based PDF loading → works on any server (no local file needed)
+- Added URL-based PDF loading + Google Drive share-link auto-conversion → works on any server
 - Added SSRF protection → blocks private/internal URLs
 - Added 10MB file size limit → protects free tier compute
-- Added /health endpoint → UptimeRobot monitoring
-- Deployed to Render (free tier, always-on via UptimeRobot)
-- window.location.origin → UI works on localhost and production automatically
+- Added /health endpoint (GET + HEAD) → UptimeRobot monitoring
+- Renamed /chat → /ask (ad blockers silently block /chat paths — root cause of "server error")
+- index.html uses relative paths only → UI works on localhost and production automatically
 - Live: https://support-bot-wc7k.onrender.com
+- Fixed GitHub contribution graph: corrected git email + filter-branch rewrite + force push
 - Files: support_bot/knowledge_base.py, support_bot/app.py, support_bot/static/index.html
 
 ### Day 13 — LinkedIn Overhaul + GitHub Profile + Deployment Verification
 - Created GitHub profile README (BinaryGenius06/BinaryGenius06) — live projects table, stack, contact
 - Pinned ai-automation + ecommerce-support-agent repos on GitHub profile
-- Added Loom demo links to telegram_bot/README.md and support_bot/README.md
+- Added Loom demo links to telegram_bot/readme.md and support_bot/readme.md
 - Verified all live deployments: Telegram bot ✅ · Support bot ✅ · UptimeRobot monitors green ✅
 - Confirmed .env in .gitignore, no secrets in repo ✅
 - Outreach pipeline expanded: 19 → 39 targets in Notion (EdTech, D2C, Recruitment)
 - Days 1–12 audit completed in Notion — no real gaps going into Week 3
-- LinkedIn new account submitted for manual review (pending 2–5 days)
+- LinkedIn new account submitted for manual review
 - Outreach readiness: 2 live URLs ✅ · 2 Looms ✅ · 39 targets ✅ · 2 templates ✅
 
 ### Day 14 — Outreach CRM + Templates + Pre-Week 3 Prep
@@ -159,8 +194,23 @@ Each day = one focused build sprint.
 - Drafted 2 fully personalised IIT-warm messages, ready to send Day 15
 - Documented outreach funnel math (30 → 6 → 3 → 2 → 1 → 0.5) + follow-up rule (Day 0/3/7/8)
 - Built Discovery Call Script — 25-min structure + 5 sector-specific diagnose questions
-- Verified both Loom demo links resolve correctly
-- Outreach readiness: CRM live ✅ · 3 templates ✅ · 2 personalised drafts ✅ · funnel math understood ✅ · call script ready ✅
+- Outreach readiness: CRM live ✅ · 3 templates ✅ · 2 personalised drafts ✅ · funnel math ✅ · call script ✅
+
+### Day 15 — Positioning + First Outreach Batch (Week 3 begins)
+- Locked positioning statement: "I help coaching institutes auto-qualify + follow up new inquiries so their sales team only calls serious leads"
+- Cleaned CRM: merged 5 duplicate target rows, archived extras
+- Sent 10 outreach messages across 3 channels: 5 LinkedIn (connect + note), 2 Email, 3 Instagram DM
+- Matched demo to pain: lead-qualifier Loom for coaching, support-bot Loom for recruitment/D2C
+- Logged every send in Notion CRM with follow-up date (+3 days) and Loom sent
+- Polished LinkedIn profile: banner, headline, featured GitHub link, skills
+- Built Week 3 Scoreboard page in Notion (messages sent / replies / calls booked)
+- Channel learning: LinkedIn connect requests cap weekly for new accounts → Email + Instagram are primary scalable channels
+
+### Day 16 — Freelance Profiles Live + Booking Infrastructure
+- Internshala freelancer profile live: career objective, 4 portfolio projects, skills, accomplishments
+- Upwork freelancer profile live: title, 250-word overview, 2 portfolio projects (with Loom demos + thumbnails), $15/hr, AI Apps & Integration / Scripts & Utilities specialties
+- Calendly booking link live: 20–30 min call, Google Meet auto-link, Google Calendar synced, evening availability — tested end-to-end
+- All client-facing surfaces now ready: LinkedIn · Internshala · Upwork · GitHub · Calendly
 
 ---
 
